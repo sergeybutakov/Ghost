@@ -27,8 +27,18 @@ module.exports = function renderer(req, res, data) {
 
     // Render Call
     res.render(res._template, data, function (err, str, renderInfo) {
-        console.log('!!!!!!!!');
-        console.log(renderInfo);
+        if (res.locals.member) {
+            const memberDataUsed = Array.from(renderInfo.dataUsed).filter(property => property.startsWith('@member'));
+            const personalisedMemberDataUsed = memberDataUsed.filter(property => !['@member', '@member.paid'].includes(property));
+
+            // We didn't use any personal data, any member with the same tier as this one should get the same content
+            if (personalisedMemberDataUsed.length === 0) {
+                const activeSubscription = res.locals.member.subscriptions.find(sub => sub.status === 'active');
+                const memberTier = activeSubscription && activeSubscription.tier.slug || 'free';
+                res.setHeader('X-Member-Cache-Tier', memberTier);
+            }
+        }
+
         if (err) {
             return req.next(err);
         }
