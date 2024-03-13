@@ -62,6 +62,11 @@ const expressQueueMw = function (config) {
     // merge `end` and `queue` middlewares
     const resultMw = function (req, res, next) {
         endMw(req, res, function () { // Inject res.end() handler to emit 'end' event
+            // use this to identify logs belonging to a request only
+            req.requestedAt = new Date().toISOString();
+            logging.info({req: req});
+            delete req.requestedAt;
+
             const startTime = Date.now();
             req.startTime = startTime;
             self.queueMw(req, res, next); // Use this middleware
