@@ -6,6 +6,11 @@ const logging = require('@tryghost/logging');
 module.exports = function logRequest(req, res, next) {
     const startTime = Date.now();
 
+    // use this to identify logs belonging to a request only
+    req.requestedAt = new Date().toISOString();
+    logging.info({req: req});
+    delete req.requestedAt;
+
     function logResponse() {
         res.responseTime = (Date.now() - startTime) + 'ms';
         req.userId = req.user ? (req.user.id ? req.user.id : req.user) : null;
