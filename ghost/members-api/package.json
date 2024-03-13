@@ -32,7 +32,7 @@
   "dependencies": {
     "@tryghost/domain-events": "0.0.0",
     "@tryghost/errors": "1.2.26",
-    "@tryghost/logging": "2.4.8",
+    "@tryghost/logging": "https://github.com/9larsons/framework/raw/main/packages/logging/tryghost-logging-2.4.11.tgz",
     "@tryghost/magic-link": "0.0.0",
     "@tryghost/member-events": "0.0.0",
     "@tryghost/members-payments": "0.0.0",
