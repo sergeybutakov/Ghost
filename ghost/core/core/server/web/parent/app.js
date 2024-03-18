@@ -8,8 +8,24 @@ module.exports = function setupParentApp() {
     debug('ParentApp setup start');
     const parentApp = express('parent');
 
+    const logging = require('@tryghost/logging');
+    let requestQueueLimit = config.get('optimization')?.requestQueue?.limit;
+    if (!requestQueueLimit) {
+        logging.info('express-queue limit is not set (optimization.requestQueue.limit), using db pool max size as limit (database.pool.max)');
+
+        requestQueueLimit = config.get('database')?.pool?.max;
+    }
+    if (!requestQueueLimit) {
+        logging.info('express-queue limit is not set (database.pool.max), using default value of 20');
+
+        requestQueueLimit = 20;
+    }
+    logging.info(`express-queue limit is ${requestQueueLimit}`);
+    parentApp.use(mw.requestQueue({
+        activeLimit: requestQueueLimit,
+        queuedLimit: -1 // ensure that requests are queued and not rejected
+    }));
     parentApp.use(mw.requestId);
-    parentApp.use(mw.logRequest);
 
     // Register event emitter on req/res to trigger cache invalidation webhook event
     parentApp.use(mw.emitEvents);
